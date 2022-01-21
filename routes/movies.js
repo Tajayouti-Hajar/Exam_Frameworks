@@ -1,10 +1,18 @@
-var express = require('express');
-var router = express.Router();
-var moviesJSON =require("../movies_reduit.json");
+const express = require("express");
+const router = express.Router();
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send(moviesJSON);
+router.get("/", async function (req, res, next) {
+  const movies = await prisma.movies.findMany({ take: 10 });
+  res.send({
+    data: movies,
+    pagination: {
+      count: req.query.total, // Total des enregistrements
+      take: req.query.limit, // Nombre d'éléments sélectionnés
+      skip: req.query.offset, // Décalage à partir duquel on prend les  données
+    },
+  });
 });
 
 module.exports = router;
